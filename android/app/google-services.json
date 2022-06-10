@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "736572679140",
+    "project_id": "sina-e9538",
+    "storage_bucket": "sina-e9538.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:736572679140:android:dfb86e4a4df3103f1dddf1",
+        "android_client_info": {
+          "package_name": "com.example.sina"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "736572679140-38smeauv0o9rtv1r3kj0877d77tqg2bg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDsReVJX5Ggg2jHzijHLq2SYlb9XXDhhmU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "736572679140-38smeauv0o9rtv1r3kj0877d77tqg2bg.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "736572679140-qp7cife47cgugdpuod0rnpvutkakkema.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.sina"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

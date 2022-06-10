@@ -108,7 +108,7 @@ class _InputFieldState extends State<InputField> {
           }
           if (widget.hint.toLowerCase().contains("phone")) {
             final exp = RegExp(
-                r"^\s*(?:\+?(\d{3}))?[-. (]*(\d{1})[-. )]*(\d{2})[-. ]*(\d{2})[-. ]*(\d{2})[-. ]*(\d{2})\s*$");
+                r"^\s*(?:\+?(\d{0,3}))?[-. (]*(\d{1})[-. )]*(\d{2})[-. ]*(\d{2})[-. ]*(\d{2})[-. ]*(\d{2})\s*$");
             if (!exp.hasMatch(value)) {
               //replaceAll(RegExp(r'\D'), "")
               return "Please type a valid number";
@@ -145,8 +145,13 @@ class Button extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: x(),
+      onTap: () {
+        x();
+      },
       child: Container(
+          margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+          constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.09),
           width: MediaQuery.of(context).size.width * 0.85,
           padding: const EdgeInsets.all(15),
           decoration: BoxDecoration(
@@ -160,6 +165,7 @@ class Button extends StatelessWidget {
             text,
             style: TextStyle(
                 color: textColor, fontWeight: FontWeight.w500, fontSize: 18),
+            overflow: TextOverflow.ellipsis,
           ))),
     );
   }
