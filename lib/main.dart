@@ -75,7 +75,7 @@ class Start extends StatelessWidget {
           } else {
             if (documentSnapshot["is_admin"] == false) {
               Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: ((context) => const HomePage())));
+                  MaterialPageRoute(builder: ((context) => const LoadMeds())));
             } //home page
           }
         }

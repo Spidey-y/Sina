@@ -90,7 +90,7 @@ class _SingInPageState extends State<SingInPage> {
                           builder: (context) => const AdminHomePage()));
                     } else {
                       Navigator.of(context).pushReplacement(MaterialPageRoute(
-                          builder: (context) => const HomePage()));
+                          builder: (context) => const LoadMeds()));
                     }
                   });
                 });

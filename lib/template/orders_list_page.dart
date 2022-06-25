@@ -112,6 +112,7 @@ class _OrdersListPageState extends State<OrdersListPage> {
                     margin: const EdgeInsets.fromLTRB(18, 18, 0, 18),
                     // width: MediaQuery.of(context).size.width * 0.5,
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       mainAxisSize: MainAxisSize.max,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -137,7 +138,11 @@ class _OrdersListPageState extends State<OrdersListPage> {
                           height: 5,
                         ),
                         Text(
-                          "${order.user.phone}\n${order.user.address}\ntest",
+                          order.medcineList.length == 1
+                              ? "${order.user.phone}\n${order.user.address}\n${order.medcineList[0].medcine.name}  ${order.medcineList[0].quantity}"
+                              : order.medcineList.length == 2
+                                  ? "${order.user.phone}\n${order.user.address}\n${order.medcineList[0].medcine.name}  ${order.medcineList[0].quantity}\n${order.medcineList[1].medcine.name}  ${order.medcineList[1].quantity}"
+                                  : "${order.user.phone}\n${order.user.address}\n${order.medcineList[0].medcine.name}  ${order.medcineList[0].quantity}\n${order.medcineList[1].medcine.name}  ${order.medcineList[1].quantity}\n${order.medcineList[2].medcine.name}  ${order.medcineList[2].quantity}\n...",
                           maxLines: 5,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(

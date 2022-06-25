@@ -8,46 +8,51 @@ import 'package:sina/template/orders_list_page.dart';
 // ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
-
+class LoadMeds extends StatefulWidget {
+  const LoadMeds({Key? key}) : super(key: key);
+  final String search = "";
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<LoadMeds> createState() => _LoadMedsState();
 }
 
-class _HomePageState extends State<HomePage> {
-  int _currentIndex = 1;
-  String search = "";
+class _LoadMedsState extends State<LoadMeds> {
   bool isSearch = false;
-  List<Order> orders = [];
-  List<MedcineChart> chart = [];
-  List<MedcineChart> med = [];
-
   @override
   Widget build(BuildContext context) {
-    double total = 0;
-    for (int i = 0; i < chart.length; ++i) {
-      total += chart[i].quantity * chart[i].medcine.price;
-    }
-    return Scaffold(
-        bottomNavigationBar: bottomNavBar(),
-        appBar: _currentIndex == 1 ? navBar(context) : null,
-        body: FutureBuilder<QuerySnapshot>(
-            future: FirebaseFirestore.instance.collection("Medcines").get(),
-            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              if (snapshot.hasError) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Something went wrong')),
-                );
+    return FutureBuilder<QuerySnapshot>(
+        future: FirebaseFirestore.instance.collection("Medcines").get(),
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Something went wrong')),
+            );
+          }
+          if (!snapshot.hasData) {
+            return Center(
+                child: CircularProgressIndicator(
+              color: Theme.of(context).primaryColor,
+            ));
+          } else {
+            List<MedcineChart> med = [];
+            if (!isSearch) {
+              med.clear();
+              for (var i in snapshot.data!.docs) {
+                med.add(MedcineChart(
+                    medcine: Medcine(
+                        id: i["id"],
+                        quantity: int.parse(i["quantity"]),
+                        price: double.parse(i["price"]),
+                        description: i["description"],
+                        imageURL: i["imageURL"],
+                        name: i["name"]),
+                    quantity: 0));
               }
-              if (!snapshot.hasData) {
-                return Center(
-                    child: CircularProgressIndicator(
-                  color: Theme.of(context).primaryColor,
-                ));
-              }
-              if (!isSearch) {
-                for (var i in snapshot.data!.docs) {
+            } else {
+              for (var i in snapshot.data!.docs) {
+                if (i["name"]
+                    .toString()
+                    .toLowerCase()
+                    .contains(widget.search.toLowerCase())) {
                   med.add(MedcineChart(
                       medcine: Medcine(
                           id: i["id"],
@@ -58,137 +63,157 @@ class _HomePageState extends State<HomePage> {
                           name: i["name"]),
                       quantity: 0));
                 }
-              } else {
-                for (var i in snapshot.data!.docs) {
-                  if (i["name"]
-                      .toString()
-                      .toLowerCase()
-                      .contains(search.toLowerCase())) {
-                    med.add(MedcineChart(
-                        medcine: Medcine(
-                            id: i["id"],
-                            quantity: int.parse(i["quantity"]),
-                            price: double.parse(i["price"]),
-                            description: i["description"],
-                            imageURL: i["imageURL"],
-                            name: i["name"]),
-                        quantity: 0));
-                  }
-                }
               }
-              return Center(
-                child: Stack(
-                  // fit: StackFit.passthrough,
-                  alignment: Alignment.bottomCenter,
-                  children: [
-                    _currentIndex == 2
-                        ? const OrdersListPage()
-                        : ListView.separated(
-                            separatorBuilder:
-                                (BuildContext context, int index) {
-                              return const SizedBox(
-                                height: 10,
-                              );
-                            },
-                            physics: const BouncingScrollPhysics(),
-                            itemCount:
-                                _currentIndex == 1 ? med.length : chart.length,
-                            itemBuilder: (BuildContext context, int index) =>
-                                MedCard(
-                                  context: context,
-                                  med: _currentIndex == 1
-                                      ? med[index]
-                                      : chart[index],
-                                  x: (x) {
-                                    setState(() {
-                                      x.quantity++;
-                                      if (!chart.contains(x)) {
-                                        chart.add(x);
-                                      }
-                                    });
-                                  },
-                                  y: (med) {
-                                    setState(() {
-                                      med.quantity--;
-                                      if (med.quantity == 0) {
-                                        chart.remove(med);
-                                      }
-                                    });
-                                  },
-                                )),
-                    _currentIndex == 0
-                        ? Button(
-                            color: Theme.of(context).primaryColor,
-                            text: "Check out (${total.toStringAsFixed(2)} DA)",
-                            textColor: Colors.white,
-                            x: () async {
-                              var tmp = [];
-                              bool correct = true;
-                              for (var i in chart) {
-                                if (i.quantity <= i.medcine.quantity) {
-                                  tmp.add({
-                                    "name": i.medcine.name,
-                                    "id": i.medcine.id,
-                                    "price": i.medcine.price,
-                                    "imageURL": i.medcine.imageURL,
-                                    "description": i.medcine.description,
-                                    "quantity": i.quantity
-                                  });
+            }
+            return HomePage(med: med);
+          }
+        });
+  }
+}
+
+// ignore: must_be_immutable
+class HomePage extends StatefulWidget {
+  HomePage({Key? key, required this.med}) : super(key: key);
+  late List<MedcineChart> med;
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  int _currentIndex = 1;
+  String search = "";
+  bool isSearch = false;
+  List<MedcineChart> chart = [];
+  List<MedcineChart> med = [];
+  @override
+  void initState() {
+    super.initState();
+    med = widget.med;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    double total = 0;
+    for (int i = 0; i < chart.length; ++i) {
+      total += chart[i].quantity * chart[i].medcine.price;
+    }
+    return Scaffold(
+        bottomNavigationBar: bottomNavBar(),
+        appBar: _currentIndex == 1 ? navBar(context) : null,
+        body: Center(
+          child: Stack(
+            // fit: StackFit.passthrough,
+            alignment: Alignment.bottomCenter,
+            children: [
+              _currentIndex == 2
+                  ? const OrdersListPage()
+                  : ListView.separated(
+                      separatorBuilder: (BuildContext context, int index) {
+                        return const SizedBox(
+                          height: 10,
+                        );
+                      },
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: _currentIndex == 1 ? med.length : chart.length,
+                      itemBuilder: (BuildContext context, int index) => MedCard(
+                            context: context,
+                            med: _currentIndex == 1 ? med[index] : chart[index],
+                            x: (MedcineChart x) {
+                              setState(() {
+                                if (!chart.contains(x)) {
+                                  x.quantity++;
+                                  chart.add(x);
                                 } else {
-                                  correct = false;
-                                  break;
+                                  chart
+                                      .where((element) =>
+                                          element.medcine.id == x.medcine.id)
+                                      .last
+                                      .quantity++;
                                 }
-                              }
-                              if (correct) {
-                                setState(() {
-                                  for (var i = 0; i < med.length; i++) {
-                                    med[i].quantity = 0;
-                                  }
-                                  chart.clear();
-                                });
-                                var user = {};
-                                await FirebaseFirestore.instance
-                                    .collection("Users")
-                                    .doc(FirebaseAuth.instance.currentUser!.uid
-                                        .toString())
-                                    .get()
-                                    .then((value) {
-                                  user = {
-                                    'id': value["id"],
-                                    "name": value["name"],
-                                    "email": value["email"],
-                                    "phone": value["phone"],
-                                    "address": value["address"],
-                                  };
-                                });
-                                var x = await FirebaseFirestore.instance
-                                    .collection("Orders")
-                                    .add({
-                                  "id": "tmp",
-                                  "date": DateFormat('yyyy-MM-ddTHH:mm:ss')
-                                      .format(DateTime.now()),
-                                  "med_list": tmp,
-                                  "user": user,
-                                  "total": total,
-                                  "status": "Pending"
-                                });
-                                await FirebaseFirestore.instance
-                                    .collection("Orders")
-                                    .doc(x.id)
-                                    .update({"id": x.id});
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content:
-                                          Text('Please lower quanity ordered')),
-                                );
-                              }
-                            })
-                        : const SizedBox(),
-                  ],
-                ),
-              );
-            }));
+                              });
+                            },
+                            y: (MedcineChart med) {
+                              setState(() {
+                                if (med.quantity > 0) {
+                                  med.quantity--;
+                                }
+                                if (med.quantity == 0) {
+                                  chart.remove(med);
+                                }
+                              });
+                            },
+                          )),
+              _currentIndex == 0
+                  ? Button(
+                      color: Theme.of(context).primaryColor,
+                      text: "Check out (${total.toStringAsFixed(2)} DA)",
+                      textColor: Colors.white,
+                      x: () async {
+                        var tmp = [];
+                        bool correct = true;
+                        for (var i in chart) {
+                          if (i.quantity <= i.medcine.quantity) {
+                            tmp.add({
+                              "name": i.medcine.name,
+                              "id": i.medcine.id,
+                              "price": i.medcine.price,
+                              "imageURL": i.medcine.imageURL,
+                              "description": i.medcine.description,
+                              "quantity": i.quantity
+                            });
+                          } else {
+                            correct = false;
+                            break;
+                          }
+                        }
+                        if (correct) {
+                          setState(() {
+                            for (var i = 0; i < med.length; i++) {
+                              med[i].quantity = 0;
+                            }
+                            chart.clear();
+                          });
+                          var user = {};
+                          await FirebaseFirestore.instance
+                              .collection("Users")
+                              .doc(FirebaseAuth.instance.currentUser!.uid
+                                  .toString())
+                              .get()
+                              .then((value) {
+                            user = {
+                              'id': value["id"],
+                              "name": value["name"],
+                              "email": value["email"],
+                              "phone": value["phone"],
+                              "address": value["address"],
+                            };
+                          });
+                          var x = await FirebaseFirestore.instance
+                              .collection("Orders")
+                              .add({
+                            "id": "tmp",
+                            "date": DateFormat('yyyy-MM-ddTHH:mm:ss')
+                                .format(DateTime.now()),
+                            "med_list": tmp,
+                            "user": user,
+                            "total": total,
+                            "status": "Pending"
+                          });
+                          await FirebaseFirestore.instance
+                              .collection("Orders")
+                              .doc(x.id)
+                              .update({"id": x.id});
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Please lower quanity ordered')),
+                          );
+                        }
+                      })
+                  : const SizedBox(),
+            ],
+          ),
+        ));
   }
 
   SalomonBottomBar bottomNavBar() {

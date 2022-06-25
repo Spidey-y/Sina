@@ -163,6 +163,7 @@ class _AdminOrdersState extends State<AdminOrders> {
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Text(order.user.name,
                             maxLines: 2,
@@ -186,7 +187,11 @@ class _AdminOrdersState extends State<AdminOrders> {
                           height: 5,
                         ),
                         Text(
-                          "${order.user.phone}\n${order.user.address}\ntest",
+                          order.medcineList.length == 1
+                              ? "${order.user.phone}\n${order.user.address}\n${order.medcineList[0].medcine.name}  ${order.medcineList[0].quantity}"
+                              : order.medcineList.length == 2
+                                  ? "${order.user.phone}\n${order.user.address}\n${order.medcineList[0].medcine.name}  ${order.medcineList[0].quantity}\n${order.medcineList[1].medcine.name}  ${order.medcineList[1].quantity}"
+                                  : "${order.user.phone}\n${order.user.address}\n${order.medcineList[0].medcine.name}  ${order.medcineList[0].quantity}\n${order.medcineList[1].medcine.name}  ${order.medcineList[1].quantity}\n${order.medcineList[2].medcine.name}  ${order.medcineList[2].quantity}\n...",
                           maxLines: 5,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(

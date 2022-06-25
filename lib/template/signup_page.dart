@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:sina/template/admin_home.dart';
 import 'package:sina/template/home_page.dart';
 import 'package:sina/template/misc.dart';
+import 'package:sina/template/signin_page.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
@@ -119,7 +119,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                const HomePage()));
+                                                const LoadMeds()));
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
@@ -135,7 +135,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     SignTextButton(
                         context: context,
-                        route: const AdminHomePage(),
+                        route: const SingInPage(),
                         leading: "Do you have an account ?  ",
                         button: "Sign In"),
                     const SizedBox(
